@@ -12,15 +12,14 @@ let factory = {
     baseCps: 1 
 };
 
-// --- 오토 클릭 데이터 (NEW) ---
 let autoClick = {
     level: 0,
     baseInterval: 3000, // 3초 (밀리초 단위)
     intervalDecrease: 200, // 0.2초 감소 (밀리초 단위)
-    currentInterval: 0, // 현재 클릭 간격 (레벨 0일 때 0)
+    currentInterval: 0,
     cost: 3000,
-    costMultiplier: 1.5, // 업그레이드 시 비용 증가율
-    timer: null // setInterval을 저장할 변수
+    costMultiplier: 1.5,
+    timer: null
 };
 
 // --- 도구 정보 (CPC 증가) ---
@@ -45,28 +44,28 @@ let ownedWorkers = [];
 const cookiesDisplay = document.getElementById('cookies');
 const cpsDisplay = document.getElementById('cookies-per-second');
 const cpcDisplay = document.getElementById('click-per-click'); 
-
-// 공장 DOM
 const factoryCountDisplay = document.getElementById('factory-count');
 const factoryCostDisplay = document.getElementById('factory-cost');
 const buyFactoryButton = document.getElementById('buy-factory');
-
-// 도구 뽑기 DOM
 const gachaCostDisplay = document.getElementById('gacha-cost');
 const drawToolButton = document.getElementById('draw-tool');
 const toolListDisplay = document.getElementById('tool-list');
-
-// 일꾼 뽑기 DOM
 const workerGachaCostDisplay = document.getElementById('worker-gacha-cost'); 
 const drawWorkerButton = document.getElementById('draw-worker'); 
 const workerListDisplay = document.getElementById('worker-list');
-
-// 오토 클릭 DOM (NEW)
 const autoClickLevelDisplay = document.getElementById('auto-click-level');
 const autoClickIntervalDisplay = document.getElementById('auto-click-interval-display');
 const autoClickCostDisplay = document.getElementById('auto-click-cost');
 const upgradeAutoClickButton = document.getElementById('upgrade-auto-click');
 
+
+// --- 헬퍼 함수: 희귀도에 따른 색상 지정 ---
+function getItemColor(rarity) {
+    if (rarity === 'Uncommon') return 'green';
+    if (rarity === 'Rare') return 'blue';
+    if (rarity === 'Legendary') return 'purple';
+    return 'black';
+}
 
 // --- 함수: 게임 상태 업데이트 ---
 function updateDisplay() {
@@ -87,7 +86,7 @@ function updateDisplay() {
     workerGachaCostDisplay.textContent = workerGachaCost;
     drawWorkerButton.disabled = cookies < workerGachaCost;
     
-    // 오토 클릭 업데이트 (NEW)
+    // 오토 클릭 업데이트
     autoClickLevelDisplay.textContent = autoClick.level;
     autoClickCostDisplay.textContent = autoClick.cost;
     upgradeAutoClickButton.disabled = cookies < autoClick.cost;
@@ -102,16 +101,47 @@ function updateDisplay() {
     }
 }
 
-// 헬퍼 함수: 희귀도에 따른 색상 지정
-function getItemColor(rarity) {
-    if (rarity === 'Uncommon') return 'green';
-    if (rarity === 'Rare') return 'blue';
-    if (rarity === 'Legendary') return 'purple';
-    return 'black';
+// --- 함수: 오토 클릭 타이머 시작/업데이트 ---
+function startAutoClicker() {
+    if (autoClick.timer) {
+        clearInterval(autoClick.timer);
+    }
+
+    autoClick.currentInterval = autoClick.baseInterval - (autoClick.level * autoClick.intervalDecrease);
+    
+    // 쿨타임이 100ms 미만으로 내려가지 않도록 최소값 설정 (게임 밸런스 및 성능 보호)
+    if (autoClick.currentInterval < 100) {
+        autoClick.currentInterval = 100; 
+    }
+
+    autoClick.timer = setInterval(() => {
+        cookies += clickPower;
+        updateDisplay();
+    }, autoClick.currentInterval);
 }
 
+// --- 함수: 아이템 목록 다시 그리기 (저장/불러오기 시 사용) ---
+function redrawItems() {
+    toolListDisplay.innerHTML = '';
+    ownedTools.forEach(tool => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${tool.name} (클릭 파워 +${(tool.bonus * 100).toFixed(0)}%, 등급: ${tool.rarity})`;
+        listItem.style.color = getItemColor(tool.rarity);
+        toolListDisplay.appendChild(listItem);
+    });
+
+    workerListDisplay.innerHTML = '';
+    ownedWorkers.forEach(worker => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${worker.name} (CPS 승수 +${(worker.bonus * 100).toFixed(0)}%, 등급: ${worker.rarity})`;
+        listItem.style.color = getItemColor(worker.rarity);
+        workerListDisplay.appendChild(listItem);
+    });
+}
+
+
 // --- 함수: 공통 뽑기 로직 ---
-function draw(gachaItems, type) { /* ... 기존 draw 함수 내용 생략 ... */
+function draw(gachaItems, type) {
     const rand = Math.random() * 100;
     let cumulativeChance = 0;
     let drawnItem = null;
@@ -126,72 +156,80 @@ function draw(gachaItems, type) { /* ... 기존 draw 함수 내용 생략 ... */
 
     if (!drawnItem) return;
 
-    let listItem = document.createElement('li');
-    
     if (type === 'tool') {
         clickPower *= (1 + drawnItem.bonus); 
         ownedTools.push(drawnItem);
-        listItem.textContent = `${drawnItem.name} (클릭 파워 +${(drawnItem.bonus * 100).toFixed(0)}%, 등급: ${drawnItem.rarity})`;
-        toolListDisplay.appendChild(listItem);
+        redrawItems();
     } else if (type === 'worker') {
         cpsMultiplier *= (1 + drawnItem.bonus); 
         ownedWorkers.push(drawnItem);
-        listItem.textContent = `${drawnItem.name} (CPS 승수 +${(drawnItem.bonus * 100).toFixed(0)}%, 등급: ${drawnItem.rarity})`;
-        workerListDisplay.appendChild(listItem);
+        redrawItems();
     }
-    listItem.style.color = getItemColor(drawnItem.rarity);
-}
-
-// --- 함수: 오토 클릭 타이머 시작/업데이트 (NEW) ---
-function startAutoClicker() {
-    // 1. 기존 타이머 제거
-    if (autoClick.timer) {
-        clearInterval(autoClick.timer);
-    }
-
-    // 2. 새로운 간격 계산
-    // 현재 간격 = 기본 간격 - (레벨 * 감소량)
-    // 1레벨: 3000 - 200 = 2800ms
-    // 2레벨: 3000 - 400 = 2600ms
-    autoClick.currentInterval = autoClick.baseInterval - (autoClick.level * autoClick.intervalDecrease);
-
-    // 3. 타이머 시작
-    // autoClick.currentInterval 밀리초마다 자동 클릭 실행
-    autoClick.timer = setInterval(() => {
-        // 클릭 파워만큼 쿠키 획득 (수동 클릭과 동일)
-        cookies += clickPower;
-        updateDisplay();
-    }, autoClick.currentInterval);
 }
 
 
-// --- 함수: 오토 클릭 업그레이드 (NEW) ---
-upgradeAutoClickButton.addEventListener('click', () => {
-    if (cookies >= autoClick.cost) {
-        cookies -= autoClick.cost;
-        
-        autoClick.level += 1; // 레벨 증가
-        
-        // 비용 증가
-        autoClick.cost = Math.floor(autoClick.cost * autoClick.costMultiplier);
+// --- 함수: 게임 상태 저장 ---
+function saveGame() {
+    const gameData = {
+        cookies,
+        clickPower,
+        cpsMultiplier,
+        gachaCost,
+        workerGachaCost,
+        factory,
+        autoClick,
+        ownedTools,
+        ownedWorkers // 배열 데이터 저장 추가
+    };
+    
+    localStorage.setItem('idleGameSave', JSON.stringify(gameData));
+    console.log("게임 저장 완료:", new Date().toLocaleTimeString());
+}
 
-        // 오토 클릭 타이머 재시작 (업그레이드된 간격 적용)
-        startAutoClicker();
+// --- 함수: 게임 상태 불러오기 ---
+function loadGame() {
+    const savedData = localStorage.getItem('idleGameSave');
+    
+    if (savedData) {
+        const gameData = JSON.parse(savedData);
+        
+        // 기본 변수 적용
+        cookies = gameData.cookies || 0;
+        clickPower = gameData.clickPower || 1;
+        cpsMultiplier = gameData.cpsMultiplier || 1;
+        gachaCost = gameData.gachaCost || 100;
+        workerGachaCost = gameData.workerGachaCost || 200;
 
-        updateDisplay();
+        // 객체 데이터 덮어쓰기
+        Object.assign(factory, gameData.factory);
+        Object.assign(autoClick, gameData.autoClick);
+        
+        // 배열 데이터 불러오기 (초기 데이터 없으면 빈 배열)
+        ownedTools = gameData.ownedTools || [];
+        ownedWorkers = gameData.ownedWorkers || [];
+
+        // 화면에 아이템 목록 다시 그리기
+        redrawItems();
+
+        // 오토 클릭 재시작
+        if (autoClick.level > 0) {
+             startAutoClicker();
+        }
+
+        console.log("게임 불러오기 완료");
+        return true; 
     }
-});
+    return false; 
+}
 
 
 // --- 이벤트 리스너 ---
 
-// 1. 쿠키 클릭
 document.getElementById('cookie-button').addEventListener('click', () => {
     cookies += clickPower;
     updateDisplay();
 });
 
-// 2. 공장 구매
 buyFactoryButton.addEventListener('click', () => {
     if (cookies >= factory.cost) {
         cookies -= factory.cost;
@@ -201,7 +239,6 @@ buyFactoryButton.addEventListener('click', () => {
     }
 });
 
-// 3. 도구 뽑기 이벤트 (CPC 증가)
 drawToolButton.addEventListener('click', () => {
     if (cookies >= gachaCost) {
         cookies -= gachaCost;
@@ -211,12 +248,23 @@ drawToolButton.addEventListener('click', () => {
     }
 });
 
-// 4. 일꾼 뽑기 이벤트 (CPS 증가)
 drawWorkerButton.addEventListener('click', () => {
     if (cookies >= workerGachaCost) {
         cookies -= workerGachaCost;
         draw(workers, 'worker'); 
         workerGachaCost = Math.floor(workerGachaCost * 1.35); 
+        updateDisplay();
+    }
+});
+
+upgradeAutoClickButton.addEventListener('click', () => {
+    if (cookies >= autoClick.cost) {
+        cookies -= autoClick.cost;
+        
+        autoClick.level += 1;
+        autoClick.cost = Math.floor(autoClick.cost * autoClick.costMultiplier);
+
+        startAutoClicker();
         updateDisplay();
     }
 });
@@ -229,9 +277,16 @@ function productionLoop() {
     updateDisplay();
 }
 
-// 1초(1000ms)마다 productionLoop 함수 실행
+
+// --- 게임 초기화 ---
+
+// 1초(1000ms)마다 CPS 생산 루프 실행
 setInterval(productionLoop, 1000);
 
-// 초기 게임 상태 표시
-updateDisplay();
-// 오토클릭이 레벨 0이라도 초기화 메시지를 표시하기 위해 updateDisplay 호출
+// 10초(10000ms)마다 자동 저장 기능 실행
+setInterval(saveGame, 10000); 
+
+// 저장된 데이터를 불러오기 시도, 없으면 초기화
+if (!loadGame()) {
+    updateDisplay();
+}
