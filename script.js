@@ -22,24 +22,31 @@ let autoClick = {
     timer: null
 };
 
-// --- 도구 정보 (CPC 증가) ---
+    // --- 도구 정보 (CPC 증가) ---
 const tools = [
-    { name: "낡은 스푼", bonus: 0.05, chance: 50, rarity: "Common" },
-    { name: "주석틀", bonus: 0.15, chance: 35, rarity: "Uncommon" },
-    { name: "자동 휘젓기 기계", bonus: 0.35, chance: 12, rarity: "Rare" },
-    { name: "시간 왜곡 오븐", bonus: 1.00, chance: 3, rarity: "Legendary" }
+    { name: "낡은 스푼", bonus: 0.05, chance: 40, rarity: "I. Common" },
+    { name: "주석틀", bonus: 0.10, chance: 30, rarity: "II. Uncommon" },
+    { name: "철제 믹서", bonus: 0.20, chance: 15, rarity: "III. Rare" },
+    { name: "금도금 체", bonus: 0.40, chance: 8, rarity: "IV. Epic" },
+    { name: "자동 반죽기", bonus: 0.80, chance: 4, rarity: "V. Legendary" },
+    { name: "초고속 오븐", bonus: 1.50, chance: 2, rarity: "VI. Mythic" },
+    { name: "차원문 스패츌러", bonus: 3.00, chance: 0.8, rarity: "VII. Ancient" },
+    { name: "무한 동력기", bonus: 5.00, chance: 0.2, rarity: "VIII. Divine" }
 ];
 let ownedTools = [];
 
 // --- 일꾼 정보 (CPS 증가) ---
 const workers = [
-    { name: "신입 인턴", bonus: 0.10, chance: 50, rarity: "Common" },
-    { name: "숙련된 제빵사", bonus: 0.25, chance: 35, rarity: "Uncommon" },
-    { name: "자동화 전문가", bonus: 0.50, chance: 12, rarity: "Rare" },
-    { name: "공장장", bonus: 1.50, chance: 3, rarity: "Legendary" }
+    { name: "신입 인턴", bonus: 0.10, chance: 40, rarity: "I. Common" },
+    { name: "숙련된 제빵사", bonus: 0.20, chance: 30, rarity: "II. Uncommon" },
+    { name: "생산 관리자", bonus: 0.40, chance: 15, rarity: "III. Rare" },
+    { name: "데이터 분석가", bonus: 0.80, chance: 8, rarity: "IV. Epic" },
+    { name: "자동화 전문가", bonus: 1.50, chance: 4, rarity: "V. Legendary" },
+    { name: "클론 노동자", bonus: 3.00, chance: 2, rarity: "VI. Mythic" },
+    { name: "시간 여행자", bonus: 6.00, chance: 0.8, rarity: "VII. Ancient" },
+    { name: "쿠키 신", bonus: 10.00, chance: 0.2, rarity: "VIII. Divine" }
 ];
 let ownedWorkers = [];
-
 // --- DOM 요소 ---
 const cookiesDisplay = document.getElementById('cookies');
 const cpsDisplay = document.getElementById('cookies-per-second');
@@ -59,14 +66,18 @@ const autoClickCostDisplay = document.getElementById('auto-click-cost');
 const upgradeAutoClickButton = document.getElementById('upgrade-auto-click');
 
 
-// --- 헬퍼 함수: 희귀도에 따른 색상 지정 ---
+// 헬퍼 함수: 희귀도에 따른 색상 지정
 function getItemColor(rarity) {
-    if (rarity === 'Uncommon') return 'green';
-    if (rarity === 'Rare') return 'blue';
-    if (rarity === 'Legendary') return 'purple';
+    if (rarity === 'I. Common') return 'gray';
+    if (rarity === 'II. Uncommon') return 'green';
+    if (rarity === 'III. Rare') return 'blue';
+    if (rarity === 'IV. Epic') return 'purple';
+    if (rarity === 'V. Legendary') return 'orange';
+    if (rarity === 'VI. Mythic') return 'red';
+    if (rarity === 'VII. Ancient') return 'cyan';
+    if (rarity === 'VIII. Divine') return 'gold'; // 노란색 계열
     return 'black';
 }
-
 // --- 함수: 게임 상태 업데이트 ---
 function updateDisplay() {
     cookiesDisplay.textContent = Math.floor(cookies);
