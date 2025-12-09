@@ -7,7 +7,7 @@ body {
 
 #game-container {
     background-color: white;
-    width: 400px;
+    width: 500px;
     margin: 0 auto;
     padding: 20px;
     border-radius: 10px;
@@ -25,9 +25,17 @@ body {
     margin-bottom: 20px;
 }
 
-.upgrade-item {
+.upgrade-item, #auto-click-section, #gacha-section, #worker-gacha-section {
     border: 1px solid #ccc;
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    margin-top: 10px;
+    font-size: 0.9em;
 }
