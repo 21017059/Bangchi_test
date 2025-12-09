@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>간단 방치형 게임</title>
+    <title>통합 방치형 쿠키 게임</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,49 +25,8 @@
                 <button id="buy-factory" data-type="factory">구매</button>
             </div>
         </div>
-
-        <div id="per-second">
-            초당 생산량 (CPS): <span id="cookies-per-second">0</span>
-        </div>
-    </div>
-    <hr>
-
-        <h2>🎲 도구 뽑기 (클릭 파워 증가)</h2>
-        <div id="gacha-section">
-            <p>도구 뽑기 비용: <span id="gacha-cost">100</span> 쿠키</p>
-            <button id="draw-tool">도구 뽑기</button>
-            <p>보유한 도구:</p>
-            <ul id="tool-list">
-                </ul>
-        </div>
         
-        <div id="per-second">
-            초당 생산량 (CPS): <span id="cookies-per-second">0</span>
-        </div>
-        <div id="click-power">
-            클릭당 생산량: <span id="click-per-click">1</span> 쿠키
-        </div>
-    </div>
-
-    <hr>
-
-        <h2>🧑‍🏭 일꾼 뽑기 (CPS 파워 증가)</h2>
-        <div id="worker-gacha-section">
-            <p>일꾼 뽑기 비용: <span id="worker-gacha-cost">200</span> 쿠키</p>
-            <button id="draw-worker">일꾼 뽑기</button>
-            <p>보유한 일꾼:</p>
-            <ul id="worker-list">
-                </ul>
-        </div>
-        
-        <div id="per-second">
-            초당 생산량 (CPS): <span id="cookies-per-second">0</span>
-        </div>
-        <div id="click-power">
-            클릭당 생산량: <span id="click-per-click">1</span> 쿠키
-        </div>
-    </div>
-    <hr>
+        <hr>
         
         <h2>🖱️ 오토 클릭 시스템</h2>
         <div id="auto-click-section">
@@ -76,6 +35,36 @@
             <p>업그레이드 비용: <span id="auto-click-cost">3000</span> 쿠키</p>
             <button id="upgrade-auto-click">오토 클릭 구매/업그레이드</button>
         </div>
+
+        <hr>
+
+        <h2>🎲 도구 뽑기 (클릭 파워 증가)</h2>
+        <div id="gacha-section">
+            <p>도구 뽑기 비용: <span id="gacha-cost">100</span> 쿠키</p>
+            <button id="draw-tool">도구 뽑기</button>
+            <p>보유한 도구:</p>
+            <ul id="tool-list"></ul>
+        </div>
+        
+        <hr>
+
+        <h2>🧑‍🏭 일꾼 뽑기 (CPS 파워 증가)</h2>
+        <div id="worker-gacha-section">
+            <p>일꾼 뽑기 비용: <span id="worker-gacha-cost">200</span> 쿠키</p>
+            <button id="draw-worker">일꾼 뽑기</button>
+            <p>보유한 일꾼:</p>
+            <ul id="worker-list"></ul>
+        </div>
+        
+        <hr>
+
+        <div id="per-second">
+            **초당 생산량 (CPS):** <span id="cookies-per-second">0</span>
+        </div>
+        <div id="click-power">
+            **클릭당 생산량:** <span id="click-per-click">1</span> 쿠키
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
